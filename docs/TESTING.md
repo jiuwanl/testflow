@@ -98,7 +98,7 @@ Java报告仍在各模块target中，浏览器截图在output/playwright；其�
 
 首次Linux构建在`QualityProjectionIntegrationIT.parkedRecordsAreIdempotentSanitizedAndCanReplayTrustedSources`出现一次`INVALID_QUALITY_EVENT`错误，其余集成测试通过，Worker模块未执行。保留该失败日志后，仅为测试辅助方法补充被拒绝的合成事件诊断，未修改业务事件校验、测试断言或跳过范围。随后Linux完整构建142项及Windows完整构建142项均通过。首次错误未再次出现，根因尚未确认；复核成功不能证明该问题已消除。
 
-这些结果是对应日期和源码范围的记录，不保证任意新机器首次运行都成功。GitHub托管CI尚未实际触发，不提供已通过徽章。
+这些结果是对应日期和源码范围的记录，不保证任意新机器首次运行都成功。公开仓库已启用[GitHub Actions](https://github.com/jiuwanl/testflow/actions/workflows/ci.yml)，托管端是否通过以对应提交的实际运行结果为准，不将本机通过结果当作托管结果。
 
 ## 4. 性能与稳定性：测量方法和边界
 
@@ -136,13 +136,13 @@ Java报告仍在各模块target中，浏览器截图在output/playwright；其�
 
 ## 5. CI和未完成验证
 
-[CI配置](../.github/workflows/ci.yml)已定义全量构建、前端、部署冒烟和恢复检查，限定上传XML和JSON，不上传私密配置或应用日志。配置存在不等于托管端已执行。
+[CI配置](../.github/workflows/ci.yml)已定义全量构建、前端、部署冒烟和恢复检查，限定上传XML和JSON，不上传私密配置或应用日志。推送后在[实际运行列表](https://github.com/jiuwanl/testflow/actions/workflows/ci.yml)选择对应提交，检查任务、步骤和报告；排队、运行中或取消均不代表通过。
 
 一次额外无缓存构建在约573秒后因4个依赖JAR截断失败，Core43项已通过但尚未进入API集成。该失败与成功构建记录分别保留，不能用缓存构建成功代替冷下载成功。
 
 | 尚未完成或当前限制 | 能否作出对应承诺 |
 | --- | --- |
-| GitHub托管CI | 本机Windows和Linux构建已实测，不能声称托管CI已绿 |
+| GitHub托管CI逐次验证 | 每次变更以Actions中对应提交的完整结果为准；本机通过不替代托管验收 |
 | Linux首次质量测试的偶发错误 | 已保留失败并通过完整复核，根因未确认，不能声称已根治 |
 | 24小时长测、生产饱和负载、多节点配额 | 不能宣传生产容量或长期SLA |
 | HTTPS、公网安全部署、可信多代理链 | 当前只适合本机回环HTTP；代理后登录限速共享IP预算 |
