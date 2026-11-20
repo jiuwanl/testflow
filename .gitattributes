@@ -1,0 +1,9 @@
+# 保持 Windows 开发与 Linux 容器/CI 使用一致的脚本换行。
+* text=auto
+*.sh text eol=lf
+*.ps1 text eol=lf
+mvnw text eol=lf
+*.cmd text eol=crlf
+*.png binary
+*.jpg binary
+*.jpeg binary

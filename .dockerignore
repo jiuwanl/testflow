@@ -1,0 +1,18 @@
+# 仅发送构建所需内容；依赖和编译产物在镜像内生成。
+**/target
+**/node_modules
+**/dist
+
+# 不将秘密、历史资料、verification/benchmarks结果或本机配置发送给 Docker 构建。
+.local
+output
+.git
+.idea
+.vscode
+.playwright-cli
+**/*.log
+.env*
+docs/*_REPORT.md
+docs/evidence
+docs/IMPLEMENTATION_PLAN.md
+docs/SOURCE_ANALYSIS.md

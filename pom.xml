@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-parent</artifactId><version>4.1.2</version><relativePath/></parent>
+  <groupId>com.testflow</groupId><artifactId>testflow</artifactId><version>0.1.0-SNAPSHOT</version><packaging>pom</packaging>
+  <name>TestFlow</name>
+  <modules><module>testflow-core</module><module>testflow-persistence</module><module>testflow-api</module><module>testflow-worker</module></modules>
+  <properties><java.version>21</java.version><mybatis.version>4.1.0</mybatis.version><skipITs>true</skipITs><project.build.sourceEncoding>UTF-8</project.build.sourceEncoding><test.jvm.args>-Xmx384m -Dfile.encoding=UTF-8</test.jvm.args></properties>
+  <dependencyManagement><dependencies>
+    <dependency><groupId>com.testflow</groupId><artifactId>testflow-core</artifactId><version>${project.version}</version></dependency>
+    <dependency><groupId>com.testflow</groupId><artifactId>testflow-persistence</artifactId><version>${project.version}</version></dependency>
+    <dependency><groupId>org.mybatis.spring.boot</groupId><artifactId>mybatis-spring-boot-starter</artifactId><version>${mybatis.version}</version></dependency>
+    <dependency><groupId>org.mybatis.spring.boot</groupId><artifactId>mybatis-spring-boot-starter-test</artifactId><version>${mybatis.version}</version></dependency>
+  </dependencies></dependencyManagement>
+  <build><pluginManagement><plugins>
+    <plugin><groupId>org.springframework.boot</groupId><artifactId>spring-boot-maven-plugin</artifactId></plugin>
+    <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-surefire-plugin</artifactId><configuration><argLine>${test.jvm.args}</argLine></configuration></plugin>
+    <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-failsafe-plugin</artifactId><configuration><skipITs>${skipITs}</skipITs><argLine>${test.jvm.args}</argLine></configuration><executions><execution><goals><goal>integration-test</goal><goal>verify</goal></goals></execution></executions></plugin>
+  </plugins></pluginManagement></build>
+  <profiles><profile><id>integration</id><properties><skipITs>false</skipITs></properties></profile></profiles>
+</project>
+

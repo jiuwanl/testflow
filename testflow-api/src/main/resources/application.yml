@@ -1,0 +1,96 @@
+spring:
+  application:
+    name: testflow-api
+  datasource:
+    url: ${TF_DB_URL}
+    username: ${TF_DB_USERNAME}
+    password: ${TF_DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 8
+      minimum-idle: 1
+      connection-timeout: 5000
+      connection-init-sql: "SET time_zone = '+00:00'"
+      data-source-properties:
+        connectTimeout: 3000
+        socketTimeout: 5000
+  flyway:
+    url: ${TF_DB_URL}
+    user: ${TF_MIGRATION_DB_USERNAME}
+    password: ${TF_MIGRATION_DB_PASSWORD}
+    locations: classpath:db/migration
+    clean-disabled: true
+    validate-on-migrate: true
+    fail-on-missing-locations: true
+  sql:
+    init:
+      mode: never
+  data:
+    redis:
+      host: ${TF_REDIS_HOST:127.0.0.1}
+      port: ${TF_REDIS_PORT:6379}
+      password: ${TF_REDIS_PASSWORD}
+      connect-timeout: 2s
+      timeout: 2s
+  session:
+    timeout: 30m
+    redis:
+      namespace: ${TF_SESSION_NAMESPACE:testflow:session}
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+server:
+  address: ${TF_BIND_ADDRESS:127.0.0.1}
+  port: ${TF_API_PORT:8080}
+  shutdown: graceful
+  error:
+    include-message: never
+    include-stacktrace: never
+    include-exception: false
+  servlet:
+    session:
+      cookie:
+        name: TESTFLOW_SESSION
+        http-only: true
+        same-site: lax
+        secure: ${TF_COOKIE_SECURE:false}
+mybatis:
+  configuration:
+    default-statement-timeout: 2
+    map-underscore-to-camel-case: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+      probes:
+        enabled: true
+      group:
+        readiness:
+          include: readinessState,db,redis
+testflow:
+  quality:
+    enabled: ${TF_QUALITY_ENABLED:false}
+    bootstrap-servers: ${TF_KAFKA_BOOTSTRAP_SERVERS:127.0.0.1:19092}
+    topic: ${TF_QUALITY_TOPIC:testflow.run-finalized.v1}
+    group-id: ${TF_QUALITY_GROUP_ID:testflow-quality-v1}
+  execution:
+    snapshot-hmac-key: ${TF_SNAPSHOT_HMAC_KEY}
+    snapshot-max-bytes: ${TF_SNAPSHOT_MAX_BYTES:4194304}
+    run-timeout-ms: ${TF_RUN_TIMEOUT_MS:600000}
+    recovery-interval-ms: ${TF_RECOVERY_INTERVAL_MS:5000}
+  secret-key: ${TF_SECRET_KEY}
+  bootstrap-admin-username: ${TF_BOOTSTRAP_ADMIN_USERNAME:}
+  bootstrap-admin-password: ${TF_BOOTSTRAP_ADMIN_PASSWORD:}
+  login-rate-prefix: ${TF_LOGIN_RATE_PREFIX:testflow:login}
+logging:
+  level:
+    # Framework listener error messages may render an untrusted ConsumerRecord body.
+    org.springframework.kafka.listener.DefaultErrorHandler: OFF
+    org.springframework.kafka.listener.KafkaMessageListenerContainer: OFF
+    org.springframework.kafka.listener.SeekUtils: OFF
+    org.apache.kafka.clients.NetworkClient: ERROR
+    com.testflow.persistence: INFO
+

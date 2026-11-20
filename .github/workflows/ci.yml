@@ -1,0 +1,63 @@
+name: TestFlow verification
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: testflow-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: "24.14.0"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Validate tooling paths and command orchestration without services
+        shell: pwsh
+        run: ./scripts/test/Test-Tooling.ps1
+      - name: Initialize isolated real database and Redis
+        shell: pwsh
+        run: ./scripts/dev/Initialize-Local.ps1
+      - name: Core tests, all integration tests and frontend build
+        shell: pwsh
+        run: ./scripts/Verify-CI.ps1
+      - name: Full deployment, Nginx/Worker smoke and recovery
+        shell: pwsh
+        run: |
+          ./scripts/Start-Deployment.ps1 -Demo
+          node scripts/test/deployment-smoke.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Deployment smoke failed.' }
+          node scripts/test/deployment-recovery.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Deployment recovery verification failed.' }
+      - name: Preserve test reports (exclude credentials and application logs)
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: test-results
+          path: |
+            **/target/surefire-reports/*.xml
+            **/target/failsafe-reports/*.xml
+            .local/verification/deployment/smoke.json
+            .local/verification/deployment/recovery.json
+          retention-days: 14
+          include-hidden-files: true
+      - name: Stop project containers and preserve volumes
+        if: always()
+        shell: pwsh
+        run: |
+          docker compose -f compose.deploy.yml --profile demo stop --timeout 35
+          . ./scripts/lib/LocalEnvironment.ps1
+          Set-TestFlowDockerEnvironment
+          docker compose stop --timeout 35

@@ -1,0 +1,24 @@
+# 构建产物与下载依赖；保留源码、迁移、pom 和依赖锁文件。
+**/target/
+frontend/node_modules/
+frontend/dist/
+
+# 本机秘密、历史文档归档、verification/benchmarks运行结果和浏览器输出。
+.local/
+output/
+.playwright-cli/
+*.log
+.env
+.env.*
+!.env.example
+
+# 编辑器本机配置。
+.idea/
+.vscode/
+
+# 防止内部资料回流；docs 六份正式文档及 assets 配图应纳入 Git。
+/docs/*_REPORT.md
+/docs/evidence/
+/docs/IMPLEMENTATION_PLAN.md
+/docs/SOURCE_ANALYSIS.md
+

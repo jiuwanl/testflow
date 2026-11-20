@@ -1,0 +1,19 @@
+# Local Linux reproduction of CI's Java verification; no credentials in image layers.
+FROM registry-1.docker.io/library/eclipse-temurin:21-jdk-jammy@sha256:432e54724c3e57d1846aeb886f4d339f3b0522931c4e64119c2797013b7cfc3c AS verify
+WORKDIR /build
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+COPY .mvn .mvn
+COPY mvnw pom.xml ./
+COPY testflow-core testflow-core
+COPY testflow-persistence testflow-persistence
+COPY testflow-api testflow-api
+COPY testflow-worker testflow-worker
+RUN --mount=type=cache,target=/root/.m2 --mount=type=secret,id=ci_env,required=true \
+    set -a; . /run/secrets/ci_env; set +a; \
+    sh ./mvnw -B -ntp -Pintegration clean verify 2>&1 | tee verification.log
+FROM scratch AS reports
+COPY --from=verify /build/verification.log /verification.log
+COPY --from=verify /build/testflow-core/target/surefire-reports /core
+COPY --from=verify /build/testflow-api/target/failsafe-reports /api
+COPY --from=verify /build/testflow-api/target/surefire-reports /api-unit
+COPY --from=verify /build/testflow-worker/target/surefire-reports /worker
